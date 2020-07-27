@@ -1,4 +1,4 @@
-# Reliable Label Bootstrapping for semi-supervised learning (2020): [arXiv link]
+# Reliable Label Bootstrapping for semi-supervised learning (2020): https://arxiv.org/abs/2007.11866
 Official implementation.
 
 # How to run
@@ -61,5 +61,12 @@ Runs with this cleaned up code can slightly differ
 
 # Please cite our paper if it helps your research
 ```
-
+@misc{albert2020relab,
+    title={ReLaB: Reliable Label Bootstrapping for Semi-Supervised Learning},
+    author={Paul Albert and Diego Ortego and Eric Arazo and Noel E. O'Connor and Kevin McGuinness},
+    year={2020},
+    eprint={2007.11866},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
 ```
