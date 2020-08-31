@@ -1,5 +1,5 @@
 export ML_DATA=data
-export PYTHONPATH=. #$PYTHONPATH:/home/paul/anaconda3/envs/tf/bin/python # find the python path by running <<< which python >>> in the terminal
+export PYTHONPATH=.
 # Download datasets
 
 CUDA_VISIBLE_DEVICES= ./scripts/create_datasets.py
