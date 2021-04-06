@@ -8,7 +8,6 @@ from torchvision import datasets, transforms
 import scipy.stats as stats
 import math
 import numpy as np
-from matplotlib import pyplot as plt
 from utils_pseudolab.utils.AverageMeter import AverageMeter
 from utils_pseudolab.utils.criterion import *
 import time
@@ -179,9 +178,9 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
                     
             optimizer.zero_grad()
             if args.DApseudolab == "False":
-                output_x1, _ = model(images_pslab)
+                output_x1 = model(images_pslab)
             else:
-                output_x1, _ = model(images)
+                output_x1 = model(images)
                 
             output_x1.detach_()
             optimizer.zero_grad()
@@ -200,7 +199,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
             images, targets_a, targets_b, lam = mixup_data(images, soft_labels, alpha, device)
 
         # compute output
-        outputs, _ = model(images)
+        outputs = model(images)
 
         if args.loss_term == "Reg_ep":
             prob, loss = loss_soft_reg_ep(outputs, labels, soft_labels, device, args)
@@ -217,7 +216,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
 
         if args.DApseudolab == "False":
             with torch.no_grad():
-                output_x1, _ = model(images_pslab)
+                output_x1 = model(images_pslab)
                 outputs = output_x1
 
         prob = F.softmax(output_x1, dim=1)
@@ -262,7 +261,7 @@ def testing(args, model, device, test_loader):
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(test_loader):
             data, target = data.to(device), target.to(device)
-            output, _ = model(data)
+            output = model(data)
             output = F.log_softmax(output, dim=1)
             test_loss += F.nll_loss(output, target, reduction='sum').item()
             loss_per_batch.append(F.nll_loss(output, target).item())
@@ -290,7 +289,7 @@ def validating(args, model, device, test_loader):
     with torch.no_grad():
         for batch_idx, (data, _, target, _, _, _) in enumerate(test_loader):
             data, target = data.to(device), target.to(device)
-            output, _ = model(data)
+            output = model(data)
             output = F.log_softmax(output, dim=1)
             test_loss += F.nll_loss(output, target, reduction='sum').item()
             loss_per_batch.append(F.nll_loss(output, target).item())

@@ -1,1 +1,0 @@
-# This is a slightly modified version of the official AND: Anchor Neighbourhood Discovery repository which can be found at https://github.com/Raymond-sci/AND, see the root README.md for usage

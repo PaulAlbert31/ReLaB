@@ -85,7 +85,12 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
 
         self.pool = nn.AdaptiveAvgPool2d(1)
-        self.linear = nn.Linear(512*block.expansion, num_classes)
+
+        self.linear = nn.Sequential(nn.Linear(512*block.expansion, 512*block.expansion*2, bias=False),
+                                    nn.BatchNorm1d(int(512*block.expansion*2)),
+                                    nn.ReLU(inplace=True),
+                                    nn.Linear(int(512*block.expansion*2), 128))
+
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -95,7 +100,7 @@ class ResNet(nn.Module):
             self.in_planes = planes * block.expansion
         return nn.Sequential(*layers)
 
-    def forward(self, x, lin=0, lout=5):
+    def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.layer2(out)
@@ -103,11 +108,11 @@ class ResNet(nn.Module):
         out = self.layer4(out)
         out = self.pool(out)
         feat = out.view(out.size(0), -1)
-        if lout < 5:
-            return feat, None
-        out = self.linear(feat)
         
-        return out, feat
+        out = self.linear(feat)
+        out = F.normalize(out, p=2, dim=1)
+        
+        return out
 
 
 def ResNet18(pretrained=False, num_classes=10):
@@ -121,7 +126,7 @@ def ResNet18(pretrained=False, num_classes=10):
             new_state_dict[name] = v    
         model.load_state_dict(new_state_dict, strict=False)
         return model
-    return ResNet(BasicBlock, [2,2,2,2], num_classes, long)
+    return ResNet(BasicBlock, [2,2,2,2], num_classes)
 
 def ResNet34(low_dim=128):
     return ResNet(BasicBlock, [3,4,6,3], low_dim)

@@ -1,8 +1,0 @@
-####################
-# cfgs for miniimagenet #
-####################
-
-# args for dataset and dataloader
-dataset: miniimagenet
-data_root: 
-batch_size: 128

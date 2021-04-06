@@ -19,6 +19,7 @@ from datasets.cifar_pseudolab import get_dataset
 sys.path.append('utils_pseudolab')
 from TwoSampler import *
 from utils_noise import *
+from mypath import Path
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -98,10 +99,10 @@ def data_config(args, transform_train, transform_test, dst_folder):
         testset = valset
     else:
         print("Training to compare to the SOTA --- TESTING MODE ---.")
-        if args.dataset == 'cifar10':
-            testset = datasets.CIFAR10(root='./data', train=False, download=False, transform=transform_test)
-        elif args.datsaet == 'cifar100':
-            testset = datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
+        if args.dataset == "cifar10":
+            testset = datasets.CIFAR10(root=Path.db_root_dir(args.dataset), train=False, download=False, transform=transform_test)
+        else:
+            testset = datasets.CIFAR100(root=Path.db_root_dir(args.dataset), train=False, download=False, transform=transform_test)
 
     test_loader = torch.utils.data.DataLoader(testset, batch_size=args.test_batch_size, shuffle=False, num_workers=12, pin_memory=True)
 
@@ -341,7 +342,7 @@ def main(args, dst_folder):
             labels = labels.to(device)
             soft_labels = soft_labels.to(device)
 
-            outputs, _ = model(images)
+            outputs = model(images)
             prob, loss = loss_soft_reg_ep(outputs, labels, soft_labels, device, args)
             results[index.detach().numpy().tolist()] = prob.cpu().detach().numpy().tolist()
 

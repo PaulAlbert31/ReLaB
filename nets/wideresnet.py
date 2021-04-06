@@ -51,7 +51,7 @@ class residual(nn.Module):
 
 class WRN(nn.Module):
     """ WRN28-width with leaky relu (negative slope is 0.1)"""
-    def __init__(self, width, num_classes, transform_fn=None, long=False, dataset=None):
+    def __init__(self, width, num_classes, diffuse=False, transform_fn=None, long=False, dataset=None):
         super().__init__()
         del dataset #compatibility
         if long:
@@ -73,14 +73,15 @@ class WRN(nn.Module):
             [residual(filters[3], filters[3]) for _ in range(1, 4)]
         self.unit3 = nn.Sequential(*unit3)
 
-        if long:
-            self.unit4 = nn.Sequential(*[BatchNorm2d(filters[3]), relu(), nn.AdaptiveAvgPool2d((2,1))]) 
-            
-            self.output = nn.Linear(filters[3]*2, num_classes)
+
+        self.unit4 = nn.Sequential(*[BatchNorm2d(filters[3]), relu(), nn.AdaptiveAvgPool2d(1)]) 
+        if diffuse:
+            self.linear = nn.Sequential(nn.Linear(128, 256, bias=False),
+                                        nn.BatchNorm1d(256),
+                                        nn.ReLU(inplace=True),
+                                        nn.Linear(256, 128))
         else:
-            self.unit4 = nn.Sequential(*[BatchNorm2d(filters[3]), relu(), nn.AdaptiveAvgPool2d(1)]) 
-            
-            self.output = nn.Linear(filters[3], num_classes)
+            self.linear = nn.Linear(filters[3], num_classes)
             
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -90,11 +91,12 @@ class WRN(nn.Module):
                 nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.Linear):
                 nn.init.xavier_normal_(m.weight)
-                nn.init.constant_(m.bias, 0)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
 
         self.transform_fn = transform_fn
 
-    def forward(self, x, return_feature=True, lin=0, lout=5):
+    def forward(self, x):
         if self.training and self.transform_fn is not None:
             x = self.transform_fn(x)
         x = self.init_conv(x)
@@ -105,12 +107,9 @@ class WRN(nn.Module):
         
         f = f.view(f.shape[0],-1)
 
-        c = self.output(f.squeeze())
+        c = self.linear(f.squeeze())
 
-        if lout > 4:
-            return c, f.squeeze()
-        else:
-            return f.squeeze(), None
+        return c
 
     def update_batch_stats(self, flag):
         for m in self.modules():

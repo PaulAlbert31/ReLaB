@@ -1,8 +1,0 @@
-####################
-# cfgs for cifar10 #
-####################
-
-# args for dataset and dataloader
-dataset: cifar10
-data_root: data/cifar10
-batch_size: 128

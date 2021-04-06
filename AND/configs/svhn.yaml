@@ -1,9 +1,0 @@
-####################
-# cfgs for cifar10 #
-####################
-
-# args for dataset and dataloader
-dataset: svhn
-data_root: data/svhn
-batch_size: 128
-display_freq: 115
