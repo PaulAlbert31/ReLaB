@@ -34,7 +34,7 @@ $ conda env create -f environment.yml
 $ conda activate relab
 $ pip3 install torchcontrib
 $ git clone https://github.com/pytorch/contrib.git                                                                                                                                                                                                                        
-$ cd contrib                                                                                                                                                                                                                                                           
+$ cd contrib
 $ sudo python3 setup.py install
 $ cd ..
 ```
